@@ -473,6 +473,12 @@ function srEdits(lines: string[], strict: boolean): Edit[] {
     let rep = -1;
     if (eq >= 0) {
       for (let j = eq + 1; j < lines.length; j++) {
+        // A SEARCH line starts a new block (SPEC.md section 7: blocks are
+        // sequential, each ending at its own >>>>>>> REPLACE), so a REPLACE
+        // past one belongs to that later block, not this one; without it
+        // this block has no REPLACE of its own. This mirrors the =======
+        // search above, which stops at a SEARCH line for the same reason.
+        if (lines[j]!.trimEnd() === '<<<<<<< SEARCH') break;
         if (lines[j]!.trimEnd() === '>>>>>>> REPLACE') {
           rep = j;
           break;
